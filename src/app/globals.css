@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+/* 디자인 토큰 — CLAUDE.md 6장. 강조색은 오렌지 하나만 쓴다. */
+@theme {
+  --color-accent: #d9731c;
+  --color-accent-dark: #b85f14;
+  --color-accent-soft: #fdf1e4;
+  --color-navy: #1d3a5f;
+  --color-ink: #14202e;
+  --color-sub: #586577;
+  --color-line: #e1e5eb;
+  --color-panel: #f5f7fa;
+  --color-danger: #b42318;
+  --color-ok: #1f7a4d;
+
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
+    system-ui, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: #ffffff;
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  /* 모든 한글 텍스트 줄바꿈 규칙 */
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+/* 긴 프롬프트·URL은 어디서든 끊어 가로 스크롤을 막는다 */
+pre,
+code,
+textarea {
+  word-break: break-all;
+  overflow-wrap: anywhere;
+}
+
+/* 입력 요소·버튼 공통 (Tailwind v4 @utility) */
+@utility input {
+  @apply w-full rounded-lg border border-line bg-white px-3 py-2.5 text-[15px] text-ink outline-none transition placeholder:text-sub/70 focus:border-navy focus:ring-2 focus:ring-navy/15;
+}
+
+@utility label {
+  @apply mb-1.5 block text-sm font-semibold text-ink;
+}
+
+@utility hint {
+  @apply mt-1 text-[13px] text-sub;
+}
+
+@utility btn {
+  @apply inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg px-4 text-[15px] font-semibold transition disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+@utility btn-primary {
+  @apply btn bg-accent text-white hover:bg-accent-dark;
+}
+
+@utility btn-navy {
+  @apply btn bg-navy text-white hover:bg-ink;
+}
+
+@utility btn-outline {
+  @apply btn border border-line bg-white text-ink hover:border-navy;
+}
+
+@utility card {
+  @apply rounded-xl border border-line bg-white;
+}
+
+@utility section-title {
+  @apply text-2xl font-bold tracking-tight text-ink md:text-3xl;
+}
+
+@utility eyebrow {
+  @apply text-[13px] font-bold tracking-wide text-accent;
+}
