@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { WaitlistForm } from "@/components/WaitlistForm";
+import { DEMO_MODE } from "@/lib/demo/mode";
+import { DemoFind } from "@/components/demo/DemoFind";
 
 export const metadata: Metadata = { title: "공략 찾기" };
 
@@ -7,6 +9,7 @@ export const metadata: Metadata = { title: "공략 찾기" };
 export default async function FindPage({ searchParams }: PageProps<"/find">) {
   const { q } = await searchParams;
   const query = typeof q === "string" ? q.trim().slice(0, 300) : "";
+  if (DEMO_MODE) return <DemoFind initialQuery={query} />;
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-12">

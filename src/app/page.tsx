@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { FIELDS } from "@/lib/fields";
 import { WaitlistForm } from "@/components/WaitlistForm";
+import { DEMO_MODE } from "@/lib/demo/mode";
 
 export default function HomePage() {
   return (
@@ -33,11 +34,16 @@ export default function HomePage() {
               <button type="submit" className="btn-primary shrink-0">공략 찾기</button>
             </div>
           </form>
+          {DEMO_MODE && (
+            <p className="mt-4 text-sm text-sub">
+              처음 오셨나요? <Link href="/demo" className="font-semibold text-navy underline underline-offset-2">기능 둘러보기</Link>에서 멘티·멘토·운영자 화면을 차례로 볼 수 있습니다.
+            </p>
+          )}
         </div>
       </section>
 
       {/* 3개 분야 카드 */}
-      <section id="fields" className="mx-auto max-w-6xl scroll-mt-24 px-4 py-14">
+      <section id="fields" className="mx-auto max-w-6xl scroll-mt-32 px-4 py-14">
         <p className="eyebrow">분야별 공략집</p>
         <h2 className="section-title mt-2">지금은 세 갈래 길부터 엽니다</h2>
         <div className="mt-8 grid gap-4 md:grid-cols-3">
@@ -108,7 +114,7 @@ export default function HomePage() {
       </section>
 
       {/* 대기자 등록 */}
-      <section id="waitlist" className="mx-auto max-w-3xl scroll-mt-24 px-4 py-14">
+      <section id="waitlist" className="mx-auto max-w-3xl scroll-mt-32 px-4 py-14">
         <p className="eyebrow">오픈 알림 받기</p>
         <h2 className="section-title mt-2">가장 먼저 소식을 받아 보세요</h2>
         <p className="mt-2 text-[15px] text-sub">

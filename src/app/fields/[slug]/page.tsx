@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { FIELDS, getField } from "@/lib/fields";
 import { WaitlistForm } from "@/components/WaitlistForm";
+import { DEMO_MODE } from "@/lib/demo/mode";
+import { FieldCourses } from "@/components/demo/FieldCourses";
 
 export function generateStaticParams() {
   return FIELDS.map((f) => ({ slug: f.slug }));
@@ -30,22 +32,25 @@ export default async function FieldPage({ params }: PageProps<"/fields/[slug]">)
         ))}
       </div>
 
-      <div className="mt-8 grid gap-4 md:grid-cols-2">
-        <div className="rounded-xl bg-panel p-5">
-          <p className="font-bold text-navy">이 분야에서 손에 쥐는 결과물</p>
-          <ul className="mt-2 space-y-1 text-[15px] text-ink">
-            {field.outputs.map((o) => <li key={o}>· {o}</li>)}
-          </ul>
-        </div>
-        <div className="rounded-xl border border-dashed border-line p-5">
-          <p className="font-bold text-ink">이 분야 멘토를 준비 중입니다</p>
-          <p className="mt-2 text-[15px] leading-relaxed text-sub">
-            출시 캠프를 수료한 멘토의 공략 과정이 이곳에 게시됩니다. 대기자로 등록하시면 첫 과정이 열릴 때 알려 드립니다.
-          </p>
-        </div>
+      <div className="mt-6 rounded-xl bg-panel p-4">
+        <p className="text-sm font-bold text-navy">이 분야에서 손에 쥐는 결과물</p>
+        <p className="mt-1 text-[15px] text-ink">{field.outputs.join(" · ")}</p>
       </div>
 
-      <div className="card mt-8 p-5 md:p-6">
+      <h2 className="mt-10 text-xl font-bold">게시된 공략 과정</h2>
+      <div className="mt-4">
+        {DEMO_MODE ? (
+          <FieldCourses field={field.slug} />
+        ) : (
+          <div className="rounded-xl border border-dashed border-line p-6 text-center">
+            <p className="font-bold">이 분야 멘토를 준비 중입니다</p>
+            <p className="mt-1 text-sm text-sub">출시 캠프를 수료한 멘토의 공략 과정이 이곳에 게시됩니다.</p>
+          </div>
+        )}
+      </div>
+
+      <h2 className="mt-12 text-xl font-bold">새 과정 소식 받기</h2>
+      <div className="card mt-4 p-5 md:p-6">
         <WaitlistForm id={`field-${field.slug}-waitlist`} defaultField={field.slug} />
       </div>
     </div>

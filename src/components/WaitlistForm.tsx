@@ -1,9 +1,12 @@
 "use client";
 
-import { startTransition, useActionState, type FormEvent } from "react";
+import { startTransition, useActionState, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { joinWaitlist, type WaitlistState } from "@/app/_actions/waitlist";
 import { FIELDS, type FieldSlug } from "@/lib/fields";
+import { DEMO_MODE } from "@/lib/demo/mode";
+import { demo } from "@/lib/demo/store";
+import { waitlistFromForm, waitlistSchema } from "@/lib/validation/waitlist";
 
 type Props = {
   defaultRole?: "mentee" | "mentor";
@@ -15,12 +18,19 @@ const initial: WaitlistState = { status: "idle" };
 
 // 대기자 등록 폼 (홈·아카데미·분야 페이지 공용)
 export function WaitlistForm({ defaultRole = "mentee", defaultField, id = "waitlist-form" }: Props) {
-  const [state, action, pending] = useActionState(joinWaitlist, initial);
+  const [serverState, action, pending] = useActionState(joinWaitlist, initial);
+  // 시연용 데모에서는 서버 대신 이 브라우저의 데모 저장소에 넣는다
+  const [demoState, setDemoState] = useState<WaitlistState | null>(null);
+  const state = demoState ?? serverState;
 
   // action prop을 쓰면 React가 제출 후 입력값을 비운다. 오류 시 입력이 남도록 직접 보낸다.
   function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
+    if (DEMO_MODE) {
+      setDemoState(submitDemo(fd));
+      return;
+    }
     startTransition(() => action(fd));
   }
   const err = state.status === "error" ? state.fieldErrors ?? {} : {};
@@ -102,4 +112,22 @@ export function WaitlistForm({ defaultRole = "mentee", defaultField, id = "waitl
       </button>
     </form>
   );
+}
+
+function submitDemo(fd: FormData): WaitlistState {
+  const parsed = waitlistSchema.safeParse(waitlistFromForm(fd));
+  if (!parsed.success) {
+    const fieldErrors: Record<string, string> = {};
+    for (const issue of parsed.error.issues) fieldErrors[String(issue.path[0] ?? "form")] ??= issue.message;
+    return { status: "error", message: "입력 내용을 확인해 주세요.", fieldErrors };
+  }
+  const v = parsed.data;
+  const r = demo.addWaitlist({ name: v.name, email: v.email, roleInterest: v.roleInterest, field: v.fieldSlug, note: v.note });
+  return {
+    status: "ok",
+    message:
+      r === "duplicate"
+        ? "이미 대기자로 등록된 이메일입니다. (시연: 운영자 화면의 대기자 목록에서 확인할 수 있습니다)"
+        : "등록되었습니다. (시연: 운영 → 대기자 화면에 방금 등록한 내용이 집계됩니다)",
+  };
 }

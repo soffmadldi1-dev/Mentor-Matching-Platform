@@ -23,8 +23,10 @@ import { PromptPanel } from "@/components/prompt/PromptPanel";
 import { MarkdownView } from "@/components/MarkdownView";
 import { CourseDetailView } from "@/components/course/CourseDetailView";
 import { saveDesignDraft } from "./actions";
+import { demo, useDemo } from "@/lib/demo/store";
+import { ME } from "@/lib/demo/seed";
 
-type SaveAccess = "guest" | "mentee" | "allowed" | "unconfigured";
+type SaveAccess = "guest" | "mentee" | "allowed" | "unconfigured" | "demo";
 type Tab = "prompt" | "example" | "detail";
 
 const STORAGE_KEY = "meonjeo.designer.v1";
@@ -73,6 +75,8 @@ export function DesignerClient({ access }: { access: SaveAccess }) {
   const [saving, startSaving] = useTransition();
   const resultRef = useRef<HTMLDivElement>(null);
   const restored = useRef(false);
+  const demoState = useDemo();
+  const demoCanSave = demoState.role === "candidate" || demoState.role === "mentor";
 
   // 저장해 둔 입력 복원 (로그인하러 다녀와도 입력이 남도록)
   useEffect(() => {
@@ -131,6 +135,40 @@ export function DesignerClient({ access }: { access: SaveAccess }) {
     const parsed = parseDesignerForm(form);
     if (!parsed.success) {
       setSaveMsg("위 입력 폼을 먼저 채워 주세요.");
+      return;
+    }
+    if (access === "demo") {
+      if (pasted.trim().length < 20) {
+        setSaveMsg("AI 답을 붙여넣어 주세요.");
+        return;
+      }
+      const role = demoState.role === "candidate" ? "candidate" : "mentor";
+      const i = parsed.data;
+      const id = demo.addCourseDraft({
+        mentorId: ME[role],
+        field: i.field,
+        title: "",
+        oneLiner: "",
+        target: "",
+        before: "",
+        after: "",
+        sessions: [],
+        prep: [],
+        notice: "",
+        price: i.desiredPrice,
+        headlines: [],
+        checks: [],
+        sessionCount: i.sessionCount,
+        minutes: i.minutes,
+        mode: i.mode,
+        designMarkdown: pasted,
+      });
+      try {
+        window.localStorage.removeItem(STORAGE_KEY);
+      } catch {
+        // 무시
+      }
+      router.push(`/studio/courses/${id}/edit?from=designer`);
       return;
     }
     startSaving(async () => {
@@ -243,7 +281,7 @@ export function DesignerClient({ access }: { access: SaveAccess }) {
       </section>
 
       {/* ── 결과 영역 ── */}
-      <section ref={resultRef} aria-labelledby="designer-result-title" className="scroll-mt-24 min-w-0">
+      <section ref={resultRef} aria-labelledby="designer-result-title" className="scroll-mt-32 min-w-0">
         <h2 id="designer-result-title" className="sr-only">설계 결과</h2>
         <div role="tablist" aria-label="결과 보기" className="grid grid-cols-3 rounded-lg border border-line bg-panel p-1 text-sm font-semibold">
           {([
@@ -292,6 +330,22 @@ export function DesignerClient({ access }: { access: SaveAccess }) {
                   </ul>
                 )}
                 <div className="mt-3">
+                  {access === "demo" && (
+                    demoCanSave ? (
+                      <div className="flex flex-wrap items-center gap-3">
+                        <button type="button" onClick={save} disabled={pasted.trim().length < 20} className="btn-navy w-full sm:w-auto">초안 저장하기</button>
+                        <button type="button" onClick={() => setPasted(example.sampleMarkdown)} className="text-sm font-semibold text-navy underline underline-offset-2">시연: 결과 예시 붙여넣기</button>
+                      </div>
+                    ) : (
+                      <div className="text-sm text-sub">
+                        <p>초안 저장은 예비 멘토·인증 멘토만 할 수 있습니다.</p>
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          <button type="button" className="btn-outline min-h-9 px-3 text-sm" onClick={() => demo.setRole("candidate")}>예비 멘토로 보기</button>
+                          <button type="button" className="btn-outline min-h-9 px-3 text-sm" onClick={() => demo.setRole("mentor")}>인증 멘토로 보기</button>
+                        </div>
+                      </div>
+                    )
+                  )}
                   {access === "allowed" && (
                     <button type="button" onClick={save} disabled={saving || pasted.trim().length < 20} className="btn-navy w-full sm:w-auto">
                       {saving ? "저장하는 중…" : "초안 저장하기"}

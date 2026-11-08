@@ -2,12 +2,15 @@ import type { Metadata } from "next";
 import { getViewer, STUDIO_ROLES } from "@/lib/auth";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { DesignerClient } from "./DesignerClient";
+import { DEMO_MODE } from "@/lib/demo/mode";
 
 export const metadata: Metadata = { title: "AI 공략 설계기" };
 
 export default async function DesignerPage() {
-  const viewer = await getViewer();
-  const access = !isSupabaseConfigured()
+  const viewer = DEMO_MODE ? null : await getViewer();
+  const access = DEMO_MODE
+    ? "demo"
+    : !isSupabaseConfigured()
     ? "unconfigured"
     : !viewer
       ? "guest"

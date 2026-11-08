@@ -4,12 +4,15 @@ import { requireRole, STUDIO_ROLES } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { getField } from "@/lib/fields";
 import { Notice } from "@/components/Notice";
+import { DEMO_MODE } from "@/lib/demo/mode";
+import { DemoStudio } from "@/components/demo/DemoStudio";
 
 export const metadata: Metadata = { title: "멘토 스튜디오" };
 
 const STATUS_LABEL: Record<string, string> = { draft: "초안", review: "검토 대기", published: "게시 중", hidden: "숨김" };
 
 export default async function StudioPage() {
+  if (DEMO_MODE) return <DemoStudio />;
   const { viewer, allowed } = await requireRole(STUDIO_ROLES, "/studio");
   if (!allowed) {
     return (

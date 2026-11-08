@@ -3,14 +3,11 @@ import { WaitlistForm } from "@/components/WaitlistForm";
 
 export const metadata: Metadata = { title: "멘토 아카데미 · 공략집 출시 캠프" };
 
-// 10장: 0주차 진입 워크숍 → 1~4주 출시 캠프, 주차별 통과 기준
-const WEEKS = [
-  { week: "0주차", title: "진입 워크숍 · 내 경험 값 매기기", time: "2시간", goal: "내 경력에서 누군가 돈을 내고 배우고 싶은 경험을 찾습니다.", pass: "경험 자산 3개와 \"나는 ○○한 사람이 ○○하도록 돕는다\" 한 문장" },
-  { week: "1주차", title: "경험을 공략으로", time: "1주", goal: "잠재 멘티를 만나 진짜 막힌 지점을 확인합니다.", pass: "잠재 멘티 인터뷰 3명 + Before/After 1장" },
-  { week: "2주차", title: "4회차 설계", time: "1주", goal: "AI 공략 설계기로 회차별 목표와 결과물을 설계합니다.", pass: "과정 설계서 + 피어 리뷰 2건" },
-  { week: "3주차", title: "파일럿과 멘토링 기술", time: "1주", goal: "실제 멘티와 파일럿을 진행하고 회차 리포트를 씁니다.", pass: "파일럿 후기 3건 + 회차 리포트" },
-  { week: "4주차", title: "출시와 첫 판매", time: "1주", goal: "상세페이지를 완성하고 공략 과정을 게시합니다.", pass: "공략 과정 게시" },
-];
+import { CAMP_WEEKS } from "@/lib/academy";
+import { DEMO_MODE } from "@/lib/demo/mode";
+import { CohortApply } from "@/components/demo/CohortApply";
+
+const WEEKS = CAMP_WEEKS.map((w) => ({ week: `${w.week}주차`, title: w.title, time: w.time, goal: w.goal, pass: w.pass.join(" + ") }));
 
 export default function AcademyPage() {
   return (
@@ -93,7 +90,15 @@ export default function AcademyPage() {
         </div>
       </section>
 
-      <section id="apply" className="mx-auto max-w-3xl scroll-mt-24 px-4 py-14">
+      {DEMO_MODE && (
+        <section id="cohorts" className="mx-auto max-w-6xl scroll-mt-32 px-4 pt-14">
+          <p className="eyebrow">기수 신청</p>
+          <h2 className="section-title mt-2">열린 기수</h2>
+          <div className="mt-6"><CohortApply /></div>
+        </section>
+      )}
+
+      <section id="apply" className="mx-auto max-w-3xl scroll-mt-32 px-4 py-14">
         <p className="eyebrow">대기 등록</p>
         <h2 className="section-title mt-2">1기 일정 안내를 먼저 받아 보세요</h2>
         <div className="card mt-6 p-5 md:p-6">

@@ -6,12 +6,16 @@ import { getField, MODE_LABELS, type CourseMode } from "@/lib/fields";
 import { Notice } from "@/components/Notice";
 import type { SessionRow } from "@/lib/designer/parseDesign";
 import { CourseEditForm } from "./CourseEditForm";
+import { updateCourseDraft } from "./actions";
+import { DEMO_MODE } from "@/lib/demo/mode";
+import { DemoCourseEdit } from "@/components/demo/DemoCourseEdit";
 
 export const metadata: Metadata = { title: "과정 편집" };
 
 export default async function CourseEditPage({ params, searchParams }: PageProps<"/studio/courses/[id]/edit">) {
   const { id } = await params;
   const sp = await searchParams;
+  if (DEMO_MODE) return <DemoCourseEdit id={id} fromDesigner={sp.from === "designer"} />;
   const { allowed } = await requireRole(STUDIO_ROLES, `/studio/courses/${id}/edit`);
   if (!allowed) return <Notice title="예비 멘토부터 과정을 편집할 수 있습니다" action={{ href: "/studio/designer", label: "공략 설계기로 가기" }} />;
 
@@ -38,7 +42,8 @@ export default async function CourseEditPage({ params, searchParams }: PageProps
       )}
       <div className="mt-6">
         <CourseEditForm
-          courseId={c.id}
+          onSave={updateCourseDraft.bind(null, c.id)}
+          footer={<p className="mt-1 text-[12px] text-sub">게시 요청(운영자 검토)은 다음 업데이트에서 열립니다.</p>}
           designMarkdown={c.design_markdown ?? ""}
           sessionCount={c.session_count}
           initial={{

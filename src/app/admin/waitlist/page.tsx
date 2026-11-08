@@ -3,12 +3,15 @@ import Link from "next/link";
 import { FIELDS, getField } from "@/lib/fields";
 import { aggregateWaitlist } from "@/lib/waitlistStats";
 import { fetchWaitlist } from "./data";
+import { DEMO_MODE } from "@/lib/demo/mode";
+import { DemoAdminWaitlist } from "@/components/demo/DemoAdminWaitlist";
 
 export const metadata: Metadata = { title: "대기자 관리" };
 
 const ROLE = { mentee: "멘티", mentor: "멘토" } as const;
 
 export default async function AdminWaitlistPage({ searchParams }: PageProps<"/admin/waitlist">) {
+  if (DEMO_MODE) return <DemoAdminWaitlist />;
   const sp = await searchParams;
   const field = typeof sp.field === "string" && getField(sp.field) ? sp.field : undefined;
   const role = sp.role === "mentee" || sp.role === "mentor" ? sp.role : undefined;

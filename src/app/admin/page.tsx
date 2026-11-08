@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { DEMO_MODE } from "@/lib/demo/mode";
+import { DemoAdminHome } from "@/components/demo/DemoAdminHome";
 
 export const metadata: Metadata = { title: "운영" };
 
 export default function AdminHome() {
+  if (DEMO_MODE) return <DemoAdminHome />;
   const items = [
     { href: "/admin/waitlist", t: "대기자", b: "분야·관심별 집계와 CSV 내보내기" },
     { href: "/admin/users", t: "회원·역할", b: "회원 역할(멘티·예비 멘토·인증 멘토·운영자) 변경" },

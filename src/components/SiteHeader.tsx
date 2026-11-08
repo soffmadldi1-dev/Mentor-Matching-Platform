@@ -1,8 +1,12 @@
 import Link from "next/link";
 import { getViewer, ROLE_LABELS, STUDIO_ROLES } from "@/lib/auth";
+import { DEMO_MODE } from "@/lib/demo/mode";
+import { DemoHeader } from "@/components/demo/DemoHeader";
 
 // 상단 바: 로고 텍스트 + 공략 찾기 / 분야별 공략집 / 아카데미 / 로그인
 export async function SiteHeader() {
+  // 시연용 데모: 로그인 대신 역할 전환
+  if (DEMO_MODE) return <DemoHeader />;
   const viewer = await getViewer();
 
   return (

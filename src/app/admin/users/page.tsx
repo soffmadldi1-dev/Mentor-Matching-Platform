@@ -2,12 +2,15 @@ import type { Metadata } from "next";
 import { getViewer, ROLE_LABELS, type Role } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { RoleForm } from "./RoleForm";
+import { DEMO_MODE } from "@/lib/demo/mode";
+import { DemoAdminUsers } from "@/components/demo/DemoAdminUsers";
 
 export const metadata: Metadata = { title: "회원·역할" };
 
 type ProfileRow = { id: string; email: string | null; display_name: string | null; role: Role; created_at: string };
 
 export default async function AdminUsersPage({ searchParams }: PageProps<"/admin/users">) {
+  if (DEMO_MODE) return <DemoAdminUsers />;
   const sp = await searchParams;
   const q = typeof sp.q === "string" ? sp.q.trim() : "";
   const viewer = await getViewer();

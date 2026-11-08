@@ -4,7 +4,6 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { MarkdownView } from "@/components/MarkdownView";
 import { parseDesignMarkdown, type SessionRow } from "@/lib/designer/parseDesign";
-import { updateCourseDraft } from "./actions";
 
 type FormValues = {
   title: string;
@@ -30,16 +29,22 @@ function fitSessions(rows: SessionRow[], count: number): SessionRow[] {
 
 const lines = (s: string) => s.split("\n").map((l) => l.trim()).filter(Boolean);
 
+export type CourseEditValues = FormValues;
+
 export function CourseEditForm({
-  courseId,
   designMarkdown,
   sessionCount,
   initial,
+  onSave,
+  footer,
 }: {
-  courseId: string;
   designMarkdown: string;
   sessionCount: number;
   initial: FormValues;
+  /** 저장 처리 (실서비스: 서버 액션, 시연: 브라우저 저장) */
+  onSave: (payload: FormValues) => Promise<{ ok: boolean; message: string }>;
+  /** 저장 버튼 옆에 붙일 추가 영역 (예: 게시 요청) */
+  footer?: React.ReactNode;
 }) {
   const [v, setV] = useState<FormValues>({ ...initial, sessions: fitSessions(initial.sessions, sessionCount) });
   const [prepText, setPrepText] = useState(initial.prep.join("\n"));
@@ -92,7 +97,7 @@ export function CourseEditForm({
       price: digits ? Number(digits) : null,
     };
     startSaving(async () => {
-      const res = await updateCourseDraft(courseId, payload);
+      const res = await onSave(payload);
       setMsg({ ok: res.ok, text: res.message });
     });
   }
@@ -198,7 +203,7 @@ export function CourseEditForm({
             <Link href="/studio" className="text-sm text-sub underline underline-offset-2">스튜디오로 돌아가기</Link>
             {msg && <span role="status" className={`text-sm ${msg.ok ? "text-ok" : "text-danger"}`}>{msg.text}</span>}
           </div>
-          <p className="mt-1 text-[12px] text-sub">게시 요청(운영자 검토)은 다음 업데이트에서 열립니다.</p>
+          {footer}
         </div>
       </div>
     </div>
