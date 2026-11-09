@@ -44,7 +44,7 @@ export default async function FieldPage({ params }: PageProps<"/fields/[slug]">)
         ) : (
           <div className="rounded-xl border border-dashed border-line p-6 text-center">
             <p className="font-bold">이 분야 멘토를 준비 중입니다</p>
-            <p className="mt-1 text-sm text-sub">출시 캠프를 수료한 멘토의 공략 과정이 이곳에 게시됩니다.</p>
+            <p className="mt-1 text-sm text-sub">품질 기준을 통과한 멘토의 공략 과정이 이곳에 게시됩니다.</p>
           </div>
         )}
       </div>

@@ -6,6 +6,8 @@ import { RoleHint } from "@/components/demo/RoleHint";
 
 const NAV = [
   { href: "/admin/waitlist", label: "대기자" },
+  { href: "/admin/applications", label: "멘토 지원 심사" },
+  { href: "/admin/mentors", label: "멘토 목록·등급" },
   { href: "/admin/courses", label: "과정 승인" },
   { href: "/admin/matching", label: "매칭 검수" },
   { href: "/admin/cohorts", label: "기수·수료" },

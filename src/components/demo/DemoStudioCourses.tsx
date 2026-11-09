@@ -11,12 +11,12 @@ import { studioMe } from "./studioMe";
 // 내 과정 목록·게시 요청 (CLAUDE.md 7장 /studio/courses)
 export function DemoStudioCourses() {
   const s = useDemo();
-  const me = studioMe(s.role);
+  const me = studioMe(s);
   const courses = s.courses.filter((c) => c.mentorId === me);
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10">
-      <RoleHint roles={["mentor", "candidate"]} what="멘토가 자기 과정을 관리하는 곳입니다." />
+      <RoleHint roles={["mentor", "registered", "master", "candidate"]} what="멘토가 자기 과정을 관리하는 곳입니다." />
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="eyebrow">멘토 스튜디오</p>

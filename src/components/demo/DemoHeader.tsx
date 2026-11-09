@@ -48,9 +48,10 @@ export function DemoHeader() {
             <span className="text-lg font-extrabold tracking-tight text-navy">먼저가본</span>
             <span className="text-[13px] font-semibold text-sub">인생공략집</span>
           </Link>
-          <nav aria-label="주요 메뉴" className="order-3 flex w-full flex-wrap gap-x-5 text-[15px] font-medium text-ink md:order-none md:w-auto">
+          <nav aria-label="주요 메뉴" className="order-3 flex w-full flex-wrap gap-x-4 md:gap-x-5 text-[15px] font-medium text-ink md:order-none md:w-auto">
             <Link href="/find" className="py-1.5 hover:text-accent">공략 찾기</Link>
             <Link href="/#fields" className="py-1.5 hover:text-accent">분야별 공략집</Link>
+            <Link href="/mentor/join" className="py-1.5 hover:text-accent">멘토로 활동하기</Link>
             <Link href="/academy" className="py-1.5 hover:text-accent">아카데미</Link>
             {ROLE_NAV[s.role].map((n) => (
               <Link key={n.href} href={n.href} className="py-1.5 font-semibold text-navy hover:text-accent">{n.label}</Link>

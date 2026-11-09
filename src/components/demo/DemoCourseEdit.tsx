@@ -32,7 +32,7 @@ export function DemoCourseEdit({ id, fromDesigner }: { id: string; fromDesigner:
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
-      <RoleHint roles={["mentor", "candidate"]} what="멘토가 과정을 다듬고 게시를 요청하는 곳입니다." />
+      <RoleHint roles={["mentor", "registered", "master", "candidate"]} what="멘토가 과정을 다듬고 게시를 요청하는 곳입니다." />
       <p className="eyebrow">멘토 스튜디오 · 과정 편집</p>
       <h1 className="mt-2 text-2xl font-extrabold tracking-tight md:text-3xl">{c.title || "제목 없는 초안"}</h1>
       <p className="mt-1 text-sm text-sub">

@@ -1,7 +1,8 @@
+import Link from "next/link";
 import type { Metadata } from "next";
 import { WaitlistForm } from "@/components/WaitlistForm";
 
-export const metadata: Metadata = { title: "멘토 아카데미 · 공략집 출시 캠프" };
+export const metadata: Metadata = { title: "아카데미 · 4주 출시 캠프(선택)" };
 
 import { CAMP_WEEKS } from "@/lib/academy";
 import { DEMO_MODE } from "@/lib/demo/mode";
@@ -14,22 +15,26 @@ export default function AcademyPage() {
     <>
       <section className="border-b border-line bg-gradient-to-b from-accent-soft/60 to-white">
         <div className="mx-auto max-w-6xl px-4 pb-12 pt-12 md:pt-16">
-          <p className="eyebrow">멘토의 문 · 공략 만들기</p>
+          <p className="eyebrow">멘토의 문 · 입구 C</p>
           <h1 className="mt-3 text-[30px] font-extrabold leading-tight tracking-tight md:text-5xl">
-            내 경험을 4회차
+            처음 과정을 만드는 분을 위한
             <br />
-            공략 과정으로 출시합니다
+            4주 출시 캠프 (선택)
           </h1>
           <p className="mt-4 max-w-2xl text-[17px] leading-relaxed text-sub">
-            먼저가본은 멘토를 먼저 길러 낸 뒤 마켓을 엽니다. 공략집 출시 캠프를 수료한 멘토만 과정을 게시할 수 있습니다.
+            경험은 있는데 상품으로 만드는 게 막막하다면, 4주 동안 함께 내 경험을 4회차 공략 과정으로 만들어 출시합니다. 캠프는 필수가 아닌 선택형 가속 과정입니다.
           </p>
+          <div role="note" className="mt-5 flex max-w-2xl flex-col gap-2 rounded-lg border border-navy/20 bg-white p-3 text-sm sm:flex-row sm:items-center sm:justify-between">
+            <p><b className="text-navy">경력자는 빠른 등록도 가능</b> · 강의·코칭 경험이 있거나 혼자 과정을 설계할 수 있다면 캠프 없이 바로 등록할 수 있습니다.</p>
+            <Link href="/mentor/join" className="shrink-0 font-semibold text-accent underline underline-offset-2">멘토로 활동하기</Link>
+          </div>
           <a href="#apply" className="btn-primary mt-6">파운딩 멘토 대기 등록하기</a>
         </div>
       </section>
 
       {/* 캠프 구성 */}
       <section className="mx-auto max-w-6xl px-4 py-14">
-        <p className="eyebrow">공략집 출시 캠프</p>
+        <p className="eyebrow">공략집 출시 캠프 · 선택</p>
         <h2 className="section-title mt-2">진입 워크숍 + 4주 캠프</h2>
         <ol className="mt-8 grid gap-3 md:grid-cols-5">
           {WEEKS.map((w) => (
@@ -48,15 +53,15 @@ export default function AcademyPage() {
 
         <div className="mt-8 grid gap-4 md:grid-cols-2">
           <div className="rounded-xl bg-panel p-5">
-            <p className="font-bold text-navy">수료와 인증</p>
+            <p className="font-bold text-navy">수료 혜택</p>
             <p className="mt-2 text-[15px] leading-relaxed text-ink">
-              과정 게시와 파일럿 후기 3건을 갖추면 운영자 검토를 거쳐 <b>인증 멘토</b>가 되고 인증 배지가 붙습니다.
+              과정 게시와 파일럿 후기 3건을 갖추면 운영자 검토를 거쳐 <b>인증 멘토</b>가 됩니다. 여기에 <b>첫 멘티 연결</b>과 <b>30일 상위 노출</b>을 더해 드립니다.
             </p>
           </div>
           <div className="rounded-xl bg-panel p-5">
-            <p className="font-bold text-navy">인증 유지 기준</p>
+            <p className="font-bold text-navy">같은 품질 기준, 실적으로 오르는 등급</p>
             <p className="mt-2 text-[15px] leading-relaxed text-ink">
-              회차 리포트 제출률 90% 이상, 평균 후기 4.5점 이상을 유지합니다. 멘티가 받는 품질을 지키기 위한 약속입니다.
+              캠프 수료생도 다른 입구의 멘토와 같은 공통 관문(필수 모듈·설계서 기준)을 통과합니다. 이후 등급은 판매·평점·회차 리포트 실적으로 올라갑니다(판매 20건·평점 4.7 이상이면 마스터 멘토).
             </p>
           </div>
         </div>

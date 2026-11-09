@@ -17,8 +17,9 @@ const SCENARIO: Step[] = [
   { role: "mentee", who: "멘티", href: "/find", title: "추천 확인 → 상세페이지 → 신청 접수", say: "추천 이유와 주의점을 보고 과정을 고릅니다. 결제 없이 신청 접수만 받습니다." },
   { role: "mentor", who: "인증 멘토", href: "/studio/bookings", title: "신청 확정 → 회차 리포트 발송", say: "메모 3줄로 리포트 프롬프트를 만들고, 멘티용 요약·다음 과제를 확인해 보냅니다." },
   { role: "mentee", who: "멘티", href: "/me/notes", title: "내 공략 노트 — 결과물·후기", say: "회차마다 요약·과제·결과물이 쌓이고, 과정이 끝나면 후기를 남깁니다." },
-  { role: "candidate", who: "예비 멘토", href: "/academy/camp", title: "출시 캠프 → AI 공략 설계기 → 게시 요청", say: "주차별 과제를 내고, 설계기로 4회차 과정을 만든 뒤 게시를 요청합니다." },
-  { role: "admin", who: "운영자", href: "/admin/quality", title: "과정 승인 · 수료 승인 · 품질 지표", say: "보장 표현·연락처 자동 검사, 인증 유지 기준 경고, 기관 보고용 성과 CSV까지 봅니다." },
+  { role: "guest", who: "멘토 지원자", href: "/mentor/join", title: "멘토로 활동하기 — 입구 선택·지원", say: "셀프 등록·경력 인증·출시 캠프 중 입구를 고르고, 필수 모듈과 설계서 자동 검사를 거쳐 지원합니다." },
+  { role: "admin", who: "운영자", href: "/admin/applications", title: "멘토 지원 심사 → 등급 부여", say: "자동 검사 결과·경력 증빙을 보고 승인합니다. 셀프 등록은 등록 멘토, 경력 인증은 바로 인증 멘토입니다." },
+  { role: "admin", who: "운영자", href: "/admin/mentors", title: "멘토 등급 · 품질 지표", say: "판매·평점·리포트 실적으로 등급이 자동으로 오르고, 운영자는 사유를 남겨 조정합니다. 기관 보고용 성과 CSV도 봅니다." },
 ];
 
 type Feature = { title: string; body: string; href: string; role: DemoRole; tag?: string };
@@ -35,9 +36,12 @@ const PERSONAS: { name: string; desc: string; features: Feature[] }[] = [
   },
   {
     name: "멘토 · 공략 만들기",
-    desc: "경험을 4회차 상품으로 출시하는 문",
+    desc: "경험을 4회차 상품으로 출시하는 문 — 입구는 셋, 기준은 하나",
     features: [
-      { title: "아카데미 · 기수 신청", body: "진입 워크숍 + 4주 출시 캠프, 파운딩 멘토 1기", href: "/academy#cohorts", role: "candidate", tag: "멘토 양성" },
+      { title: "멘토로 활동하기", body: "입구 3개 비교(셀프 등록·경력 인증·출시 캠프)와 나에게 맞는 입구 찾기", href: "/mentor/join", role: "guest", tag: "멘토 양성" },
+      { title: "멘토 지원서", body: "기본 정보 → 경력 증빙 → 필수 모듈 퀴즈 → 설계서 자동 검사 → 인터뷰 일정 → 제출", href: "/mentor/join/B", role: "guest", tag: "멘토 양성" },
+      { title: "멘토 등급 · 스튜디오", body: "등급 배지, 수습 진행, 다음 등급까지 남은 조건", href: "/studio", role: "registered" },
+      { title: "아카데미 · 기수 신청 (선택)", body: "처음 과정을 만드는 분을 위한 진입 워크숍 + 4주 출시 캠프", href: "/academy#cohorts", role: "candidate", tag: "멘토 양성" },
       { title: "내 캠프", body: "0~4주차 진도, 통과 기준, 과제 제출, 경험 진단 프롬프트", href: "/academy/camp", role: "candidate", tag: "멘토 양성" },
       { title: "AI 공략 설계기", body: "경험 → 회차별 목표·진행·결과물·과제 설계 프롬프트, 상세페이지 미리보기", href: "/studio/designer", role: "candidate", tag: "AI 과정 설계" },
       { title: "과정 편집 · 게시 요청", body: "설계서 가져오기, 보장 표현·외부 연락처 자동 검사", href: "/studio/courses", role: "mentor" },
@@ -50,9 +54,11 @@ const PERSONAS: { name: string; desc: string; features: Feature[] }[] = [
     features: [
       { title: "운영 대시보드", body: "대기자·게시 과정·신청·인증 멘토 지표와 처리할 일", href: "/admin", role: "admin" },
       { title: "대기자 관리", body: "분야·관심별 집계, 목표 대비 진행률, CSV 내보내기", href: "/admin/waitlist", role: "admin" },
+      { title: "멘토 지원 심사", body: "입구별 필터, 자동 검사 결과, 경력 증빙·인터뷰 일정, 승인·보완 요청·반려", href: "/admin/applications", role: "admin", tag: "멘토 양성" },
+      { title: "멘토 목록 · 등급", body: "등급·수습·판매·평점·리포트 제출률, 사유를 남기는 수동 조정", href: "/admin/mentors", role: "admin" },
       { title: "과정 게시 승인", body: "자동 검사 경고와 함께 승인·반려(사유)", href: "/admin/courses", role: "admin" },
       { title: "매칭 검수", body: "요청서와 후보 과정을 나란히, 추천 이유 초안 프롬프트", href: "/admin/matching", role: "admin" },
-      { title: "기수·수료 승인", body: "수강생 주차 진도, 과제 검토, 수료 → 인증 멘토", href: "/admin/cohorts/co-camp1", role: "admin", tag: "멘토 양성" },
+      { title: "기수·수료 승인", body: "수강생 주차 진도, 과제 검토, 수료 → 인증 멘토 + 30일 상위 노출", href: "/admin/cohorts/co-camp1", role: "admin", tag: "멘토 양성" },
       { title: "품질 지표 · 성과 보고", body: "리포트 제출률·평균 후기 경고, 분야별 성과 CSV", href: "/admin/quality", role: "admin", tag: "회차별 결과물" },
     ],
   },
@@ -88,7 +94,7 @@ export default function DemoTourPage() {
         <h2 className="section-title mt-2">매칭이 아니라, 검증된 결과물입니다</h2>
         <div className="mt-6 grid gap-3 md:grid-cols-3">
           {[
-            { t: "멘토 양성·인증", b: "출시 캠프를 수료하고 파일럿 후기 3건을 받은 멘토만 과정을 게시합니다. 인증 유지 기준으로 품질을 관리합니다." },
+            { t: "멘토 양성·인증", b: "입구는 셋(셀프 등록·경력 인증·출시 캠프), 품질 기준은 하나입니다. 모든 멘토가 같은 관문을 통과하고, 등급은 판매·평점·리포트 실적으로 오릅니다." },
             { t: "AI 과정 설계", b: "멘토의 경험을 AI 공략 설계기로 회차별 목표·결과물·과제가 있는 4회차 상품으로 바꿉니다." },
             { t: "회차별 결과물 검증", b: "매 회차 멘티가 손에 쥐는 결과물과 회차 리포트가 남고, 기관 보고용 성과로 집계됩니다." },
           ].map((x) => (
@@ -158,8 +164,8 @@ export default function DemoTourPage() {
               <p className="mt-2 text-sm leading-relaxed text-sub">과정 판매액의 20%. 파운딩 멘토는 첫 3건 40%, 이후 20%. 권장 가격은 4회 기준 취업·관광 15~25만 원, 창업 30~40만 원입니다.</p>
             </div>
             <div className="card p-5">
-              <p className="font-bold">멘토 출시 캠프 수강료</p>
-              <p className="mt-2 text-sm leading-relaxed text-sub">1기 0원(파운딩) → 2기 9.9만 원 → 3기부터 19.9만 원.</p>
+              <p className="font-bold">멘토 출시 캠프 수강료 (선택형)</p>
+              <p className="mt-2 text-sm leading-relaxed text-sub">처음 과정을 만드는 분을 위한 가속 상품. 1기 0원(파운딩) → 2기 9.9만 원 → 3기부터 19.9만 원.</p>
             </div>
             <div className="card p-5">
               <p className="font-bold">기관 협력</p>

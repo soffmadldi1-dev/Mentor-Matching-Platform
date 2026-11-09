@@ -16,7 +16,7 @@ const NEXT: Partial<Record<BookingStatus, { to: BookingStatus; label: string }>>
 // 신청 관리 (멘토)
 export function DemoBookings() {
   const s = useDemo();
-  const me = studioMe(s.role);
+  const me = studioMe(s);
   const myCourses = s.courses.filter((c) => c.mentorId === me);
   const bookings = s.bookings.filter((b) => myCourses.some((c) => c.id === b.courseId));
   const order: BookingStatus[] = ["inquiry", "confirmed", "in_progress", "done", "cancelled"];
@@ -24,7 +24,7 @@ export function DemoBookings() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10">
-      <RoleHint roles={["mentor"]} what="멘토가 들어온 신청을 확정하고 회차 리포트를 보내는 곳입니다." />
+      <RoleHint roles={["mentor", "registered", "master"]} what="멘토가 들어온 신청을 확정하고 회차 리포트를 보내는 곳입니다." />
       <p className="eyebrow">멘토 스튜디오</p>
       <h1 className="mt-2 text-3xl font-extrabold tracking-tight">신청 관리</h1>
       <p className="mt-2 text-sm text-sub">결제 없이 신청 접수만 받습니다. 멘티와 일정을 맞춘 뒤 확정하세요. 연락은 플랫폼 안에서 이어집니다.</p>

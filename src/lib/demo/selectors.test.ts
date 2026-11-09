@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createSeed } from "./seed";
-import { courseRating, fieldOutcomes, mentorQuality, publishedCourses } from "./selectors";
+import { courseRating, fieldOutcomes, isMatchEligible, mentorBadges, mentorGradeInfo, mentorQuality, publishedCourses } from "./selectors";
 
 describe("데모 데이터 계산", () => {
   const s = createSeed();
@@ -30,5 +30,42 @@ describe("데모 데이터 계산", () => {
     const o = fieldOutcomes(s);
     expect(o).toHaveLength(3);
     expect(o.reduce((a, x) => a + x.enrollments, 0)).toBe(s.bookings.length);
+  });
+});
+
+describe("멘토 입구·등급 예시 데이터", () => {
+  const s = createSeed();
+  const grade = (id: string) => mentorGradeInfo(s, id, new Date("2026-11-08"));
+
+  it("A·B·C 입구 멘토가 각각 있다", () => {
+    const tracks = s.mentors.filter((m) => m.approvedAt).map((m) => m.track);
+    expect(tracks).toContain("A");
+    expect(tracks).toContain("B");
+    expect(tracks).toContain("C");
+  });
+
+  it("등급이 실적으로 계산된다", () => {
+    expect(grade("m-r").grade).toBe("registered");
+    expect(grade("m-r").probation).toBe(true);
+    expect(grade("m-f").grade).toBe("registered");
+    expect(grade("m-a").grade).toBe("certified");
+    expect(grade("m-m").grade).toBe("master");
+    expect(grade("me-cand").grade).toBeNull();
+    expect(grade("m-d").boosted).toBe(true);
+  });
+
+  it("마스터 멘토 과정이 분야 목록 맨 위에 오고, 배지는 등급·파운딩·새로 온 멘토로 나뉜다", () => {
+    expect(publishedCourses(s, "tourism")[0].mentorId).toBe("m-m");
+    expect(mentorBadges(s, "m-a")).toEqual(["인증 멘토", "파운딩 멘토"]);
+    expect(mentorBadges(s, "m-r")).toEqual(["등록 멘토", "새로 온 멘토"]);
+  });
+
+  it("추천 매칭 대상은 인증 멘토 이상", () => {
+    expect(isMatchEligible(s, "m-a")).toBe(true);
+    expect(isMatchEligible(s, "m-r")).toBe(false);
+  });
+
+  it("예시 지원서가 입구별로 있다", () => {
+    expect(s.applications.map((a) => a.track).sort()).toEqual(["A", "A", "B"]);
   });
 });

@@ -24,7 +24,8 @@ import { MarkdownView } from "@/components/MarkdownView";
 import { CourseDetailView } from "@/components/course/CourseDetailView";
 import { saveDesignDraft } from "./actions";
 import { demo, useDemo } from "@/lib/demo/store";
-import { ME } from "@/lib/demo/seed";
+import { APPLICANT_ID } from "@/lib/demo/seed";
+import { studioMe } from "@/components/demo/studioMe";
 
 type SaveAccess = "guest" | "mentee" | "allowed" | "unconfigured" | "demo";
 type Tab = "prompt" | "example" | "detail";
@@ -63,7 +64,7 @@ function exampleToForm(ex: DesignerExample): DesignerFormState {
   };
 }
 
-export function DesignerClient({ access }: { access: SaveAccess }) {
+export function DesignerClient({ access, joinTrack }: { access: SaveAccess; joinTrack?: "A" | "B" }) {
   const router = useRouter();
   const [form, setForm] = useState<DesignerFormState>(EMPTY_DESIGNER_FORM);
   const [exampleId, setExampleId] = useState<string | null>(null);
@@ -76,7 +77,7 @@ export function DesignerClient({ access }: { access: SaveAccess }) {
   const resultRef = useRef<HTMLDivElement>(null);
   const restored = useRef(false);
   const demoState = useDemo();
-  const demoCanSave = demoState.role === "candidate" || demoState.role === "mentor";
+  const demoCanSave = ["candidate", "registered", "mentor", "master"].includes(demoState.role);
 
   // 저장해 둔 입력 복원 (로그인하러 다녀와도 입력이 남도록)
   useEffect(() => {
@@ -142,10 +143,9 @@ export function DesignerClient({ access }: { access: SaveAccess }) {
         setSaveMsg("AI 답을 붙여넣어 주세요.");
         return;
       }
-      const role = demoState.role === "candidate" ? "candidate" : "mentor";
       const i = parsed.data;
       const id = demo.addCourseDraft({
-        mentorId: ME[role],
+        mentorId: studioMe(demoState),
         field: i.field,
         title: "",
         oneLiner: "",
@@ -186,6 +186,20 @@ export function DesignerClient({ access }: { access: SaveAccess }) {
     });
   }
 
+  // 멘토 지원서(/mentor/join)에서 왔을 때: 붙여넣은 설계서를 지원서 4단계에 연결한다
+  function linkToApplication() {
+    if (!joinTrack) return;
+    if (pasted.trim().length < 20) {
+      setSaveMsg("AI 답을 붙여넣어 주세요.");
+      return;
+    }
+    const appId = demo.ensureApplication(APPLICANT_ID, joinTrack);
+    demo.updateApplication(appId, {
+      design: { markdown: pasted, finalOutput: form.finalOutput.trim(), sessionCount: Number(form.sessionCount) },
+    });
+    router.push(`/mentor/join/${joinTrack}?step=design`);
+  }
+
   const pastedCheck = useMemo(() => {
     if (pasted.trim().length < 20) return null;
     const { data } = parseDesignMarkdown(pasted);
@@ -201,6 +215,13 @@ export function DesignerClient({ access }: { access: SaveAccess }) {
   const exampleParsed = useMemo(() => parseDesignMarkdown(example.sampleMarkdown).data, [example]);
 
   return (
+    <>
+    {joinTrack && (
+      <div role="note" className="mb-6 flex flex-col gap-2 rounded-lg border border-accent/40 bg-accent-soft p-3 text-sm sm:flex-row sm:items-center sm:justify-between">
+        <p><b>멘토 지원서 작성 중</b> · 설계서를 만든 뒤 아래 &ldquo;지원서에 연결하기&rdquo;를 누르면 지원서 4단계로 돌아갑니다.</p>
+        <Link href={`/mentor/join/${joinTrack}?step=design`} className="shrink-0 font-semibold text-navy underline underline-offset-2">지원서로 돌아가기</Link>
+      </div>
+    )}
     <div className="grid gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
       {/* ── 입력 폼 ── */}
       <section aria-labelledby="designer-form-title">
@@ -330,7 +351,13 @@ export function DesignerClient({ access }: { access: SaveAccess }) {
                   </ul>
                 )}
                 <div className="mt-3">
-                  {access === "demo" && (
+                  {joinTrack && (
+                    <div className="mb-3 flex flex-wrap items-center gap-3">
+                      <button type="button" onClick={linkToApplication} disabled={pasted.trim().length < 20} className="btn-primary w-full sm:w-auto">지원서에 연결하기</button>
+                      {access === "demo" && <button type="button" onClick={() => setPasted(example.sampleMarkdown)} className="text-sm font-semibold text-navy underline underline-offset-2">시연: 결과 예시 붙여넣기</button>}
+                    </div>
+                  )}
+                  {access === "demo" && !joinTrack && (
                     demoCanSave ? (
                       <div className="flex flex-wrap items-center gap-3">
                         <button type="button" onClick={save} disabled={pasted.trim().length < 20} className="btn-navy w-full sm:w-auto">초안 저장하기</button>
@@ -412,6 +439,7 @@ export function DesignerClient({ access }: { access: SaveAccess }) {
         </div>
       </section>
     </div>
+    </>
   );
 }
 

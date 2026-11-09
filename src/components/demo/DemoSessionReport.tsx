@@ -74,7 +74,7 @@ export function DemoSessionReport({ id }: { id: string }) {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10">
-      <RoleHint roles={["mentor"]} what="멘토가 회차를 마치고 멘티에게 리포트를 보내는 곳입니다." />
+      <RoleHint roles={["mentor", "registered", "master"]} what="멘토가 회차를 마치고 멘티에게 리포트를 보내는 곳입니다." />
       <Link href="/studio/bookings" className="text-sm text-sub underline underline-offset-2">← 신청 관리</Link>
       <h1 className="mt-2 text-2xl font-extrabold tracking-tight md:text-3xl">회차 리포트</h1>
       <p className="mt-1 text-sm text-sub">{personName(s, b.menteeId)} · {c.title}</p>

@@ -6,7 +6,9 @@ import { DEMO_MODE } from "@/lib/demo/mode";
 
 export const metadata: Metadata = { title: "AI 공략 설계기" };
 
-export default async function DesignerPage() {
+export default async function DesignerPage({ searchParams }: PageProps<"/studio/designer">) {
+  const { join } = await searchParams;
+  const joinTrack = join === "A" || join === "B" ? join : undefined;
   const viewer = DEMO_MODE ? null : await getViewer();
   const access = DEMO_MODE
     ? "demo"
@@ -26,7 +28,7 @@ export default async function DesignerPage() {
         내 경험을 적으면 회차별 목표·진행·결과물·과제를 설계하는 프롬프트를 만들어 드립니다. 내 AI에 붙여넣어 설계서를 받고, 그 답을 초안으로 저장하세요.
       </p>
       <div className="mt-8">
-        <DesignerClient access={access} />
+        <DesignerClient access={access} joinTrack={joinTrack} />
       </div>
     </div>
   );

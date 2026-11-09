@@ -88,19 +88,19 @@ export default function HomePage() {
             </div>
             <div className="card p-6">
               <p className="text-sm font-bold text-accent">멘토의 문</p>
-              <h3 className="mt-1 text-xl font-bold">공략 만들기 · 아카데미</h3>
+              <h3 className="mt-1 text-xl font-bold">공략 만들기</h3>
               <ol className="mt-4 space-y-3 text-[15px]">
-                <Step n="1" title="출시 캠프" body="4주 동안 내 경험을 4회차 공략 과정으로 설계합니다." />
-                <Step n="2" title="파일럿과 인증" body="파일럿 후기 3건을 받고 과정을 게시하면 인증 멘토가 됩니다." />
-                <Step n="3" title="출시와 운영" body="회차 리포트로 품질을 관리하며 공략 과정을 운영합니다." />
+                <Step n="1" title="입구 선택" body="셀프 등록, 경력 인증(빠른 등록), 처음 과정을 만드는 분을 위한 출시 캠프 중 나에게 맞는 입구를 고릅니다." />
+                <Step n="2" title="기준 통과" body="본인 확인, 필수 모듈, 설계서 기준 검사를 통과합니다. 모든 입구가 같은 기준입니다." />
+                <Step n="3" title="활동 시작" body="과정을 게시해 활동을 시작하고, 판매·평점·회차 리포트 실적으로 등급이 오릅니다." />
               </ol>
-              <Link href="/academy" className="btn-outline mt-6 w-full sm:w-auto">아카데미 알아보기</Link>
+              <Link href="/mentor/join" className="btn-outline mt-6 w-full sm:w-auto">멘토로 활동하기</Link>
             </div>
           </div>
 
           <div className="mt-10 grid gap-4 md:grid-cols-3">
             {[
-              { t: "검증된 멘토만", b: "출시 캠프를 수료하고 파일럿 후기를 받은 멘토만 과정을 엽니다." },
+              { t: "같은 기준, 실적으로 오르는 등급", b: "모든 멘토가 같은 품질 기준을 통과하고, 판매·평점·회차 리포트 실적으로 등급이 오릅니다." },
               { t: "AI로 다듬은 과정 설계", b: "멘토의 경험을 AI 공략 설계기로 회차별 계획과 결과물로 정리합니다." },
               { t: "회차마다 결과물", b: "듣고 끝나는 상담이 아니라, 매 회차 손에 쥐는 결과물로 확인합니다." },
             ].map((x) => (

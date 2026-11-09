@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { getField } from "@/lib/fields";
 import { demo, useDemo } from "@/lib/demo/store";
-import { courseRating, mentorOf, personName, publishedCourses } from "@/lib/demo/selectors";
+import { courseRating, isMatchEligible, mentorOf, personName, publishedCourses } from "@/lib/demo/selectors";
 import { fmtDate } from "@/lib/demo/format";
 import type { DemoCourse, DemoNeedRequest, DemoState } from "@/lib/demo/types";
 import { buildMatchReasonPrompt } from "@/lib/prompts/matchReason";
@@ -13,9 +13,9 @@ import { PromptPanel } from "@/components/prompt/PromptPanel";
 
 type Pick = { courseId: string; reasons: [string, string, string]; caution: string };
 
-/** 1차 후보: 같은 분야 + 게시 과정, 최대 20개 (나중에 임베딩 검색으로 바꿀 자리) */
+/** 1차 후보: 같은 분야 + 게시 과정 + 인증 멘토 이상(추천 매칭 대상), 최대 20개 (나중에 임베딩 검색으로 바꿀 자리) */
 export function candidateCourses(s: DemoState, r: DemoNeedRequest): DemoCourse[] {
-  return publishedCourses(s, r.field).slice(0, 20);
+  return publishedCourses(s, r.field).filter((c) => isMatchEligible(s, c.mentorId)).slice(0, 20);
 }
 
 // 매칭 검수 (운영자 수동 매칭, CLAUDE.md 9장 ④ MVP)
@@ -131,7 +131,7 @@ function MatchWorkbench({ s, r, onPublished }: { s: DemoState; r: DemoNeedReques
 
       {/* 후보 과정 */}
       <section>
-        <p className="font-bold">후보 과정 {candidates.length}개 <span className="font-normal text-sub">· 같은 분야 게시 과정, 최대 3개 선택</span></p>
+        <p className="font-bold">후보 과정 {candidates.length}개 <span className="font-normal text-sub">· 같은 분야 게시 과정 중 인증 멘토 이상, 최대 3개 선택</span></p>
         {!candidates.length && <p className="mt-3 rounded-lg border border-dashed border-line p-4 text-sm">이 분야 게시 과정이 없습니다. 멘티에게는 &ldquo;이 분야 멘토를 준비 중입니다 + 대기자 등록&rdquo;이 안내됩니다.</p>}
         <ul className="mt-3 space-y-3">
           {candidates.map((c) => {

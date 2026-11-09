@@ -24,7 +24,7 @@ export function DemoAdminQuality() {
     <div>
       <h1 className="text-2xl font-extrabold">품질 지표</h1>
       <p className="mt-1 text-sm text-sub">
-        인증 유지 기준: 회차 리포트 제출률 {QUALITY_RULES.reportRate * 100}% 이상, 평균 후기 {QUALITY_RULES.avgRating}점 이상. 미달이면 경고가 표시됩니다.
+        품질 기준(인증 등급 조건과 같음): 회차 리포트 제출률 {QUALITY_RULES.reportRate * 100}% 이상, 평균 후기 {QUALITY_RULES.avgRating}점 이상. 미달이면 경고가 표시되고, 등급 조정은 멘토 목록에서 합니다.
       </p>
 
       <ul className="mt-6 divide-y divide-line rounded-xl border border-line">

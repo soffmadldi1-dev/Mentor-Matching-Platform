@@ -3,8 +3,13 @@
 import { useSyncExternalStore } from "react";
 import { checkPublishText } from "@/lib/moderation";
 import { createSeed, ME, SEED_VERSION } from "./seed";
+import { parseDesignMarkdown } from "@/lib/designer/parseDesign";
+import { baseGrade, type GradeOverride } from "@/lib/mentorGrade";
 import type {
+  ApplicationStatus,
   BookingStatus,
+  DemoApplication,
+  DemoMentor,
   DemoCourse,
   DemoMatch,
   DemoNeedRequest,
@@ -182,17 +187,116 @@ export const demo = {
       ),
     }));
   },
-  /** 수료 승인 → 멘토 인증 */
+  /** 수료 승인 → C 입구 승인: 인증 멘토 + 30일 상위 노출 */
   graduate(enrollmentId: string) {
     const e = get().enrollments.find((x) => x.id === enrollmentId);
     if (!e) return;
     const t = now();
+    const boostUntil = new Date(Date.now() + 30 * 86_400_000).toISOString();
     set((s) => ({
       ...s,
       enrollments: s.enrollments.map((x) => (x.id === enrollmentId ? { ...x, status: "completed", graduatedAt: t, passedWeeks: [0, 1, 2, 3, 4] } : x)),
-      mentors: s.mentors.map((m) => (m.id === e.userId ? { ...m, status: "certified", certifiedAt: t } : m)),
+      mentors: s.mentors.map((m) => (m.id === e.userId ? { ...m, track: "C", approvedAt: t, boostUntil } : m)),
       people: s.people.map((p) => (p.id === e.userId ? { ...p, role: "mentor" } : p)),
     }));
+  },
+
+  // ───────────── 멘토 지원(A 셀프 등록 · B 경력 인증) ─────────────
+  /** 이 사용자의 해당 입구 지원서를 찾고, 없으면 작성 중 상태로 만든다 */
+  ensureApplication(userId: string, track: "A" | "B"): string {
+    const found = get().applications.find((a) => a.userId === userId && a.track === track);
+    if (found) return found.id;
+    const name = get().people.find((p) => p.id === userId)?.name ?? "";
+    const app: DemoApplication = {
+      id: uid("app"),
+      userId,
+      track,
+      status: "draft",
+      identityChecked: false,
+      basic: { name, field: "", oneLiner: "", career: "" },
+      evidence: { items: [{ org: "", topic: "", year: "", people: "" }], certs: "", reviewLinks: "", lectureUrl: "" },
+      modulePassed: [],
+      design: { markdown: "", finalOutput: "", sessionCount: 4 },
+      interviewSlots: [],
+      createdAt: now(),
+    };
+    set((s) => ({ ...s, applications: [...s.applications, app] }));
+    return app.id;
+  },
+  updateApplication(id: string, patch: Partial<DemoApplication>) {
+    set((s) => ({ ...s, applications: s.applications.map((a) => (a.id === id ? { ...a, ...patch } : a)) }));
+  },
+  submitApplication(id: string) {
+    set((s) => ({
+      ...s,
+      applications: s.applications.map((a) => (a.id === id ? { ...a, status: "submitted", submittedAt: now(), reason: undefined } : a)),
+    }));
+  },
+  /** 운영자 심사: 승인(입구에 맞는 등급) / 보완 요청 / 반려 */
+  decideApplication(id: string, decision: Extract<ApplicationStatus, "approved" | "revision" | "rejected">, reason = "") {
+    const app = get().applications.find((a) => a.id === id);
+    if (!app) return;
+    const t = now();
+    set((s) => {
+      const applications = s.applications.map((a) => (a.id === id ? { ...a, status: decision, decidedAt: t, reason: reason || undefined } : a));
+      if (decision !== "approved") return { ...s, applications };
+      const field = app.basic.field || "career";
+      const exists = s.mentors.find((m) => m.id === app.userId);
+      const mentor: DemoMentor = {
+        id: app.userId,
+        headline: app.basic.oneLiner,
+        bio: app.basic.career,
+        fieldSlugs: [field],
+        keywords: [],
+        isFounding: exists?.isFounding ?? false,
+        track: app.track,
+        approvedAt: t,
+      };
+      // 제출한 설계서로 과정 초안을 만들어 바로 다듬고 게시 요청할 수 있게 한다
+      const d = parseDesignMarkdown(app.design.markdown).data;
+      const course: DemoCourse = {
+        id: uid("c"),
+        mentorId: app.userId,
+        field,
+        title: d.title ?? "",
+        oneLiner: d.oneLiner ?? "",
+        target: d.target ?? "",
+        before: d.before ?? "",
+        after: d.after ?? "",
+        sessions: d.sessions ?? [],
+        prep: d.prep ?? [],
+        notice: d.notice ?? "",
+        price: d.price ?? null,
+        headlines: d.headlines ?? [],
+        checks: d.checks ?? [],
+        sessionCount: app.design.sessionCount,
+        minutes: 60,
+        mode: "online",
+        status: "draft",
+        designMarkdown: app.design.markdown,
+        createdAt: t,
+      };
+      return {
+        ...s,
+        applications,
+        mentors: exists ? s.mentors.map((m) => (m.id === app.userId ? { ...m, ...mentor } : m)) : [...s.mentors, mentor],
+        people: s.people.map((p) => (p.id === app.userId ? { ...p, role: baseGrade(app.track) === "certified" ? "mentor" : "registered" } : p)),
+        courses: [course, ...s.courses],
+      };
+    });
+  },
+
+  // ───────────── 멘토 등급 ─────────────
+  /** 운영자 수동 등급 조정(정지 포함). grade가 null이면 자동 계산으로 되돌린다. */
+  setMentorOverride(mentorId: string, grade: GradeOverride["grade"] | null, reason: string) {
+    set((s) => ({
+      ...s,
+      mentors: s.mentors.map((m) => (m.id === mentorId ? { ...m, override: grade ? { grade, reason, at: now() } : undefined } : m)),
+    }));
+  },
+  /** 시연용 실적 입력 (판매 수·평균 평점·리포트 제출률). null을 넘기면 실제 데이터로 되돌린다. */
+  setMentorSim(mentorId: string, sim: DemoMentor["sim"] | null) {
+    set((s) => ({ ...s, mentors: s.mentors.map((m) => (m.id === mentorId ? { ...m, sim: sim ?? undefined } : m)) }));
   },
 
   addReport(bookingId: string, sessionN: number, data: { memo: string; menteeSummary: string; nextHomework: string; output: string }) {
